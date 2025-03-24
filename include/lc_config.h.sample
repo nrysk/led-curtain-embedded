@@ -1,0 +1,18 @@
+#ifndef LC_CONFIG_H
+#define LC_CONFIG_H
+
+/**
+ * WiFi の設定
+ */
+
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
+
+/**
+ * フロントエンドの URL
+ */
+
+#define FRONTEND_URL ""
+
+
+#endif
