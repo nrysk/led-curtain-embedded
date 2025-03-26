@@ -1,6 +1,6 @@
 #include <ESPAsyncWebServer.h>
 #include <WiFi.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include "lc_config.h"
 
 AsyncWebServer server(80);
@@ -27,23 +27,18 @@ void setupServer()
         [](AsyncWebServerRequest *request)
         {
             Serial.println("GET /");
-            request->redirect(FRONTEND_URL "?esp-ip=" + WiFi.localIP().toString());
         });
 
     server.on(
         "/content", HTTP_POST,
         [](AsyncWebServerRequest *request)
-        {
-            Serial.println("POST /content");
-            request->send(200, "text/plain", "OK");
-        },
+        { Serial.println("POST /content"); },
         [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
         {
-            Serial.printf("index: %d\n", index);
             if (index == 0)
             {
                 Serial.printf("Uploading %s\n", filename.c_str());
-                file = SPIFFS.open("/content", FILE_WRITE);
+                file = LittleFS.open("/content.png", FILE_WRITE);
             }
 
             if (file)
@@ -55,6 +50,7 @@ void setupServer()
             {
                 Serial.printf("Uploaded %s\n", filename.c_str());
                 file.close();
+                request->send(200, "text/plain", "Completed");
             }
         });
 

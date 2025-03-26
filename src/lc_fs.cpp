@@ -1,4 +1,4 @@
-#include <SPIFFS.h>
+#include <LittleFS.h>
 
 bool successFS = false;
 
@@ -9,9 +9,9 @@ void setupFS()
 {
     Serial.println("Setting up file system");
 
-    if (!SPIFFS.begin(true))
+    if (!LittleFS.begin(true))
     {
-        Serial.println("An error occurred while mounting SPIFFS");
+        Serial.println("An error occurred while mounting FS");
         return;
     }
 

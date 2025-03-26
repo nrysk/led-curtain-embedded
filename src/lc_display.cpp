@@ -1,7 +1,13 @@
-#include <M5AtomS3.h>
 #include <WiFi.h>
+#include <LittleFS.h>
+#include <M5AtomS3.h>
 #include "lc_fs.h"
+#include "lc_config.h"
 
+/**
+ * @brief システム情報の表示を行う関数
+ * @param init 最初の描画時に true を指定
+ */
 void displaySystemInfo(bool init)
 {
 
@@ -105,6 +111,11 @@ void displaySystemInfo(bool init)
     AtomS3.Display.endWrite();
 }
 
+/**
+ * @brief QR コードの表示を行う関数
+ * @details フロントエンドの URL に IP アドレスクエリを付与した文字列を QR コードとして表示
+ * @param init 最初の描画時に true を指定
+ */
 void displayQRCode(bool init)
 {
     static IPAddress prevIP = -1;
@@ -120,6 +131,21 @@ void displayQRCode(bool init)
     {
         AtomS3.Display.clear();
     }
-    AtomS3.Display.qrcode("http://" + ip.toString());
+    AtomS3.Display.qrcode(FRONTEND_URL "?esp-ip=" + WiFi.localIP().toString());
+    AtomS3.Display.endWrite();
+}
+
+/**
+ * @brief 画像の表示を行う関数
+ * @param init 最初の描画時に true を指定
+ */
+void displayImage(bool init)
+{
+    AtomS3.Display.startWrite();
+    if (init)
+    {
+        AtomS3.Display.clear();
+        AtomS3.Display.drawPngFile(LittleFS, "/content.png", 0, 0);
+    }
     AtomS3.Display.endWrite();
 }

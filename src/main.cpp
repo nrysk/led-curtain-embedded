@@ -1,7 +1,5 @@
 #include <Arduino.h>
 #include <M5AtomS3.h>
-#include <WiFi.h>
-#include <SPIFFS.h>
 
 #include "lc_display.h"
 #include "lc_server.h"
@@ -72,7 +70,7 @@ void loop()
 
   case State::Image:
     // 画像表示モード
-
+    displayImage(prevState != state);
     break;
   }
 
