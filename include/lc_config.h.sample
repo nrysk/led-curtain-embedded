@@ -14,5 +14,10 @@
 
 #define FRONTEND_URL ""
 
+/**
+ * ファイルシステムの設定
+ */
+
+#define MAX_CONTENT_NUM 8
 
 #endif

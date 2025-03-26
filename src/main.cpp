@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <M5AtomS3.h>
 
+#include "lc_config.h"
 #include "lc_display.h"
 #include "lc_server.h"
 #include "lc_wifi.h"
@@ -31,6 +32,7 @@ void loop()
 {
   static State prevState = State::Dummy;
   static State state = State::Normal;
+  static int imageId = 0;
 
   // デバイス状態の更新
   AtomS3.update();
@@ -53,6 +55,13 @@ void loop()
   {
     // ボタン A を押下：画像表示モードに切り替え
     Serial.println("Switching to image display mode");
+    // 既に画像表示モードの場合は、次の画像を表示
+    if (prevState == State::Image)
+    {
+      imageId = (imageId + 1) % MAX_CONTENT_NUM;
+    }
+    // 画像表示モードに切り替え
+    prevState = State::Dummy;
     state = State::Image;
   }
 
@@ -70,7 +79,7 @@ void loop()
 
   case State::Image:
     // 画像表示モード
-    displayImage(prevState != state);
+    displayImage(prevState != state, imageId);
     break;
   }
 

@@ -3,6 +3,8 @@
 #include <LittleFS.h>
 #include "lc_config.h"
 
+#define PNG_SIGNATURE 0x474e5089
+
 AsyncWebServer server(80);
 
 // ファイル書き込み用の変数
@@ -29,16 +31,35 @@ void setupServer()
             Serial.println("GET /");
         });
 
+    // POST /contents/:id へのリクエストを受けた場合は、ファイルを受信
     server.on(
-        "/content", HTTP_POST,
+        "^\\/contents\\/([0-9]+)$", HTTP_POST,
         [](AsyncWebServerRequest *request)
-        { Serial.println("POST /content"); },
+        {
+            const String id = request->pathArg(0);
+            Serial.printf("POST /contents/%d\n", id.toInt());
+        },
         [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
         {
+            const String id = request->pathArg(0);
+            // ID が有効な範囲かどうかを確認
+            if (id.toInt() < 0 || id.toInt() > MAX_CONTENT_NUM)
+            {
+                Serial.println("Invalid content ID");
+                request->send(400, "text/plain", "Invalid content ID");
+                return;
+            }
             if (index == 0)
             {
-                Serial.printf("Uploading %s\n", filename.c_str());
-                file = LittleFS.open("/content.png", FILE_WRITE);
+                Serial.printf("Receiving file %s\n", filename.c_str());
+                // ファイルは png 画像に限定
+                if (!filename.endsWith(".png") || ((uint32_t *)data)[0] != PNG_SIGNATURE)
+                {
+                    Serial.println("Only PNG files are accepted");
+                    request->send(400, "text/plain", "Only PNG files are accepted");
+                    return;
+                }
+                file = LittleFS.open("/contents/" + id + "/image.png", FILE_WRITE, true);
             }
 
             if (file)
@@ -48,7 +69,7 @@ void setupServer()
 
             if (final)
             {
-                Serial.printf("Uploaded %s\n", filename.c_str());
+                Serial.printf("Received file %s\n", filename.c_str());
                 file.close();
                 request->send(200, "text/plain", "Completed");
             }

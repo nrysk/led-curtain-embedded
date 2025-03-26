@@ -139,13 +139,19 @@ void displayQRCode(bool init)
  * @brief 画像の表示を行う関数
  * @param init 最初の描画時に true を指定
  */
-void displayImage(bool init)
+void displayImage(bool init, int id)
 {
+    String path = "/contents/" + String(id) + "/image.png";
+    if (!LittleFS.exists(path))
+    {
+        return;
+    }
+
     AtomS3.Display.startWrite();
     if (init)
     {
         AtomS3.Display.clear();
-        AtomS3.Display.drawPngFile(LittleFS, "/content.png", 0, 0);
+        AtomS3.Display.drawPngFile(LittleFS, path, 0, 0);
     }
     AtomS3.Display.endWrite();
 }
