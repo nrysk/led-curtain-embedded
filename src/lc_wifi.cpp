@@ -9,6 +9,9 @@ void setupWiFi()
 {
     Serial.printf("Connecting to %s", WIFI_SSID);
 
+    // WiFi モードを STA に設定
+    WiFi.mode(WIFI_STA);
+
     // WiFi に接続
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     for (int i = 0; i < 20 && WiFi.status() != WL_CONNECTED; i++)
@@ -17,12 +20,15 @@ void setupWiFi()
         Serial.print(".");
     }
 
-    // 接続に失敗した場合は再起動
+    // 接続に失敗した場合はエラーメッセージを表示
     if (WiFi.status() != WL_CONNECTED)
     {
         Serial.println("Failed to connect to WiFi");
-        ESP.restart();
+        return;
     }
+
+    // 自動再接続を有効にする
+    WiFi.setAutoReconnect(true);
 
     // 接続に成功した場合は IP アドレスを表示
     Serial.println("Connected to WiFi");
