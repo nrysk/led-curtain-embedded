@@ -3,6 +3,6 @@
 
 void displaySystemInfo(bool init);
 void displayQRCode(bool init);
-void displayImage(bool init, int id);
+void displayImage(bool init, int id, int frames);
 
 #endif

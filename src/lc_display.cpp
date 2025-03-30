@@ -58,7 +58,7 @@ void displaySystemInfo(bool init)
         else
         {
             AtomS3.Display.setTextColor(RED);
-            AtomS3.Display.println("x");
+            AtomS3.Display.print("x");
         }
         AtomS3.Display.setTextColor(WHITE);
         AtomS3.Display.println("WiFi");
@@ -138,15 +138,19 @@ void displayQRCode(bool init)
 /**
  * @brief 画像の表示を行う関数
  * @param init 最初の描画時に true を指定
+ * @param id プリセット ID
+ * @param frameIndex フレームインデックス
  */
-void displayImage(bool init, int id)
+void displayImage(bool init, int id, int frameIndex)
 {
-    String path = "/contents/" + String(id) + "/image.png";
+    // ファイルが存在するか確認
+    String path = getFilePath(String(id), String(frameIndex));
     if (!LittleFS.exists(path))
     {
         return;
     }
 
+    // 描画
     AtomS3.Display.startWrite();
     if (init)
     {

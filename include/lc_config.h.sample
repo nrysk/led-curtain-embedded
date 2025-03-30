@@ -18,6 +18,7 @@
  * ファイルシステムの設定
  */
 
-#define MAX_CONTENT_NUM 8
+#define MAX_PRESET_NUM 4
+#define MAX_FRAME_NUM 20
 
 #endif

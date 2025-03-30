@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include <M5AtomS3.h>
+#include <FastLED.h>
+#include <LittleFS.h>
 
 #include "lc_config.h"
 #include "lc_display.h"
@@ -7,11 +9,12 @@
 #include "lc_wifi.h"
 #include "lc_ntp.h"
 #include "lc_fs.h"
+#include "lc_led.h"
 
 enum class State
 {
   Dummy,
-  Normal,
+  SystemInfo,
   QRCode,
   Image,
 };
@@ -26,48 +29,47 @@ void setup()
   setupNTP();
   setupFS();
   setupServer();
+  setupLED();
 }
 
 void loop()
 {
+  const long interval = 1000;
+  static unsigned long previousMillis = 0;
+
   static State prevState = State::Dummy;
-  static State state = State::Normal;
-  static int imageId = 0;
+  static State state = State::SystemInfo;
+  static int presetId = 0;
+  static int frameIndex = 0;
 
   // デバイス状態の更新
   AtomS3.update();
 
+  // ボタン A を長押し：QR コード表示モードに切り替え
+  // ボタン A をダブルクリック：通常表示モードに切り替え
+  // ボタン A をクリック：画像表示モードに切り替え
   if (AtomS3.BtnA.pressedFor(800))
   {
-    // ボタン A を長押し：QR コード表示モードに切り替え
-    Serial.println("Switching to QR code display mode");
     state = State::QRCode;
   }
   else if (AtomS3.BtnA.wasDoubleClicked())
   {
-    // ボタン A をダブルクリック：通常表示モードに切り替え
-    Serial.println("Switching to normal display mode");
-    // 画面更新を強制するために前回の状態を Dummy に設定
     prevState = State::Dummy;
-    state = State::Normal;
+    state = State::SystemInfo;
   }
   else if (AtomS3.BtnA.wasPressed())
   {
-    // ボタン A を押下：画像表示モードに切り替え
-    Serial.println("Switching to image display mode");
-    // 既に画像表示モードの場合は、次の画像を表示
     if (prevState == State::Image)
     {
-      imageId = (imageId + 1) % MAX_CONTENT_NUM;
+      presetId = presetId % MAX_PRESET_NUM + 1;
     }
-    // 画像表示モードに切り替え
     prevState = State::Dummy;
     state = State::Image;
   }
 
   switch (state)
   {
-  case State::Normal:
+  case State::SystemInfo:
     // 通常表示モード
     displaySystemInfo(prevState != state);
     break;
@@ -78,8 +80,19 @@ void loop()
     break;
 
   case State::Image:
+    // 一定時間ごとにフレームを進める
+    const int totalFrames = getTotalFrames(String(presetId));
+    unsigned long currentMillis = millis();
+    if (totalFrames > 1 && currentMillis - previousMillis >= interval)
+    {
+      previousMillis = currentMillis;
+      frameIndex = (frameIndex + 1) % totalFrames;
+      prevState = State::Dummy;
+    }
+
     // 画像表示モード
-    displayImage(prevState != state, imageId);
+    displayImage(prevState != state, presetId, frameIndex);
+    // lightUpImage(presetId);
     break;
   }
 
