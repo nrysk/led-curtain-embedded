@@ -155,7 +155,7 @@ void displayImage(bool init, int id, int frameIndex)
     if (init)
     {
         AtomS3.Display.clear();
-        AtomS3.Display.drawPngFile(LittleFS, path, 0, 0);
+        AtomS3.Display.drawPngFile(LittleFS, path, 24, 24, 0, 0, 0, 0, 4.0f, 4.0f);
     }
     AtomS3.Display.endWrite();
 }

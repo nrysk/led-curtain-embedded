@@ -34,7 +34,6 @@ void setup()
 
 void loop()
 {
-  const long interval = 1000;
   static unsigned long previousMillis = 0;
 
   static State prevState = State::Dummy;
@@ -82,8 +81,9 @@ void loop()
   case State::Image:
     // 一定時間ごとにフレームを進める
     const int totalFrames = getTotalFrames(String(presetId));
+    const int interval = getInterval(String(presetId));
     unsigned long currentMillis = millis();
-    if (totalFrames > 1 && currentMillis - previousMillis >= interval)
+    if (totalFrames > 1 && interval >= 100 && currentMillis - previousMillis >= interval)
     {
       previousMillis = currentMillis;
       frameIndex = (frameIndex + 1) % totalFrames;

@@ -8,6 +8,8 @@
 
 #define IMAGE_WIDTH 20
 #define IMAGE_HEIGHT 20
+#define MIN_INTERVAL 100
+#define MAX_INTERVAL 10000
 
 AsyncWebServer server(80);
 
@@ -130,8 +132,19 @@ void handlePostTotalFramesBody(AsyncWebServerRequest *request, uint8_t *data, si
         request->send(400, "text/plain", "Invalid frame number");
         return;
     }
-    Serial.printf("POST /presets/%s, totalFrames: %d\n", id.c_str(), totalFrames);
+
+    // フレーム間インターバルの取得
+    int interval = doc["interval"];
+    if (interval < MIN_INTERVAL || interval > MAX_INTERVAL)
+    {
+        Serial.println("Invalid interval");
+        request->send(400, "text/plain", "Invalid interval");
+        return;
+    }
+
+    Serial.printf("POST /presets/%s, totalFrames: %d, interval: %d\n", id.c_str(), totalFrames, interval);
     setTotalFrames(id, totalFrames);
+    setInterval(id, interval);
     request->send(200, "text/plain", "OK");
 }
 
