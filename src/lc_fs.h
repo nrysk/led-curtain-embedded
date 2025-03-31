@@ -4,8 +4,8 @@
 extern bool successFS;
 
 void setupFS();
-String getFilePath(const String id, const String frames);
-File openImageFile(const String id, const String frames);
+String getFilePath(const String id, const String frameIndex);
+File openImageFile(const String id, const String frameIndex);
 void setTotalFrames(const String id, const int totalFrames);
 int getTotalFrames(const String id);
 void setInterval(const String id, const int interval);

@@ -2,6 +2,6 @@
 #define LC_LED_H
 
 void setupLED();
-void lightUpImage(int id);
+void lightUpImage(const int id, const int frameIndex);
 
 #endif

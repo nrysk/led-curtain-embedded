@@ -14,13 +14,16 @@
 
 CRGB leds[NUM_LEDS];
 
+/**
+ * @brief LED の初期化を行う関数
+ */
 void setupLED()
 {
     FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
     FastLED.setMaxPowerInVoltsAndMilliamps(5, MAX_POWER_MILLIAMPS);
 }
 
-void draw_callback(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32_t h, unsigned char *rgba)
+static void draw_callback(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32_t h, unsigned char *rgba)
 {
     if (x >= LED_WIDTH || y >= LED_HEIGHT)
     {
@@ -29,9 +32,14 @@ void draw_callback(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t w, uint32_t 
     leds[x * LED_HEIGHT + y] = CRGB(rgba[0], rgba[1], rgba[2]);
 }
 
-void lightUpImage(int id)
+/**
+ * @brief LED マトリクスに画像を表示する関数
+ * @param id プリセット ID
+ * @param frameIndex フレームのインデックス
+ */
+void lightUpImage(const int id, const int frameIndex)
 {
-    String path = getFilePath(String(id), "0");
+    String path = getFilePath(String(id), String(frameIndex));
     if (!LittleFS.exists(path))
     {
         Serial.println("Image not found");

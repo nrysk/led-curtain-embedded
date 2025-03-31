@@ -92,7 +92,7 @@ void loop()
 
     // 画像表示モード
     displayImage(prevState != state, presetId, frameIndex);
-    // lightUpImage(presetId);
+    lightUpImage(presetId, frameIndex);
     break;
   }
 

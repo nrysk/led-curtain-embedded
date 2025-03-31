@@ -15,7 +15,7 @@ AsyncWebServer server(80);
 
 // ファイル書き込み用の変数
 File file;
-String frames;
+String frameIndex;
 
 // typedef std::function<void(AsyncWebServerRequest *request)> ArRequestHandlerFunction;
 // typedef std::function<void(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final)>
@@ -25,15 +25,15 @@ String frames;
 void handlePostFrame(AsyncWebServerRequest *request)
 {
     const String id = request->pathArg(0);
-    if (request->hasParam("frames", true))
+    if (request->hasParam("frameIndex", true))
     {
-        frames = request->getParam("frames", true)->value();
-        Serial.printf("POST /presets/%s/frames, frames: %s\n", id, frames);
+        frameIndex = request->getParam("frameIndex", true)->value();
+        Serial.printf("POST /presets/%s/frameIndex, frameIndex: %s\n", id, frameIndex);
     }
     else
     {
-        Serial.println("No frames parameter");
-        request->send(400, "text/plain", "No frames parameter");
+        Serial.println("No frameIndex parameter");
+        request->send(400, "text/plain", "No frameIndex parameter");
     }
 }
 void handlePostFrameUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
@@ -50,7 +50,7 @@ void handlePostFrameUpload(AsyncWebServerRequest *request, String filename, size
             return;
         }
         // フレーム数が有効な範囲かどうかを確認
-        if (frames.toInt() < 0 || frames.toInt() > MAX_FRAME_NUM)
+        if (frameIndex.toInt() < 0 || frameIndex.toInt() > MAX_FRAME_NUM)
         {
             Serial.println("Invalid frame number");
             request->send(400, "text/plain", "Invalid frame number");
@@ -79,7 +79,7 @@ void handlePostFrameUpload(AsyncWebServerRequest *request, String filename, size
 
         // 画像の保存先を指定
         Serial.printf("Receiving file %s\n", filename.c_str());
-        file = openImageFile(id, frames);
+        file = openImageFile(id, frameIndex);
         if (!file)
         {
             Serial.println("Failed to open file for writing");
