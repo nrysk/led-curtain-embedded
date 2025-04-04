@@ -68,16 +68,11 @@ void setTotalFrames(const String id, const int totalFrames)
 int getTotalFrames(const String id)
 {
     String path = "/presets/" + id + "/totalFrames";
-    if (!LittleFS.exists(path))
-    {
-        Serial.println("Total frames file not found");
-        return -1;
-    }
     File file = LittleFS.open(path, FILE_READ);
     if (!file)
     {
         Serial.println("Failed to open file for reading");
-        return -1;
+        return 0;
     }
     String totalFrames = file.readStringUntil('\n');
     file.close();
@@ -110,18 +105,50 @@ void setInterval(const String id, const int interval)
 int getInterval(const String id)
 {
     String path = "/presets/" + id + "/interval";
-    if (!LittleFS.exists(path))
-    {
-        Serial.println("Interval file not found");
-        return -1;
-    }
     File file = LittleFS.open(path, FILE_READ);
     if (!file)
     {
         Serial.println("Failed to open file for reading");
-        return -1;
+        return 1000;
     }
     String interval = file.readStringUntil('\n');
     file.close();
     return interval.toInt();
+}
+
+/**
+ * @brief 対応するプリセットのループ回数を設定する関数
+ * @param id プリセット ID
+ * @param loopCount ループ回数
+ */
+void setLoopCount(const String id, const int loopCount)
+{
+    String path = "/presets/" + id + "/loopCount";
+    File file = LittleFS.open(path, FILE_WRITE, true);
+    if (!file)
+    {
+        Serial.println("Failed to open file for writing");
+        return;
+    }
+    file.print(loopCount);
+    file.close();
+}
+
+/**
+ * @brief 対応するプリセットのループ回数を取得する関数
+ * @param id プリセット ID
+ * @return ループ回数
+ */
+int getLoopCount(const String id)
+{
+    String path = "/presets/" + id + "/loopCount";
+    File file = LittleFS.open(path, FILE_READ);
+    if (!file)
+    {
+        Serial.println("Failed to open file for reading");
+        return 1;
+    }
+    String loopCount = file.readStringUntil('\n');
+    file.close();
+    return loopCount.toInt();
 }

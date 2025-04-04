@@ -131,7 +131,7 @@ void displayQRCode(bool init)
     {
         AtomS3.Display.clear();
     }
-    AtomS3.Display.qrcode(FRONTEND_URL "?esp-ip=" + WiFi.localIP().toString());
+    AtomS3.Display.qrcode("http://" + ip.toString() + "?esp-ip=" + ip.toString());
     AtomS3.Display.endWrite();
 }
 
@@ -143,6 +143,7 @@ void displayQRCode(bool init)
  */
 void displayImage(bool init, int id, int frameIndex)
 {
+    Serial.printf("displayImage, id: %d, frameIndex: %d\n", id, frameIndex);
     // ファイルが存在するか確認
     String path = getFilePath(String(id), String(frameIndex));
     if (!LittleFS.exists(path))

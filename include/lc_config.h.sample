@@ -9,16 +9,10 @@
 #define WIFI_PASSWORD ""
 
 /**
- * フロントエンドの URL
- */
-
-#define FRONTEND_URL ""
-
-/**
  * ファイルシステムの設定
  */
 
-#define MAX_PRESET_NUM 4
-#define MAX_FRAME_NUM 20
+#define MAX_PRESET_COUNT 4
+#define MAX_FRAME_COUNT 20
 
 #endif

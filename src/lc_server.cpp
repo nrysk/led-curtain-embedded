@@ -10,47 +10,33 @@
 #define IMAGE_HEIGHT 20
 #define MIN_INTERVAL 100
 #define MAX_INTERVAL 10000
+#define MAX_LOOP_COUNT 20
 
 AsyncWebServer server(80);
 
 // ファイル書き込み用の変数
 File file;
-String frameIndex;
 
-// typedef std::function<void(AsyncWebServerRequest *request)> ArRequestHandlerFunction;
-// typedef std::function<void(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final)>
-// ArUploadHandlerFunction;
-// typedef std::function<void(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)> ArBodyHandlerFunction;
-
-void handlePostFrame(AsyncWebServerRequest *request)
-{
-    const String id = request->pathArg(0);
-    if (request->hasParam("frameIndex", true))
-    {
-        frameIndex = request->getParam("frameIndex", true)->value();
-        Serial.printf("POST /presets/%s/frameIndex, frameIndex: %s\n", id, frameIndex);
-    }
-    else
-    {
-        Serial.println("No frameIndex parameter");
-        request->send(400, "text/plain", "No frameIndex parameter");
-    }
-}
+void handlePostFrame(AsyncWebServerRequest *request) {}
 void handlePostFrameUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
 {
+
     if (index == 0)
     {
+
         const String id = request->pathArg(0);
+        const String frameIndex = request->pathArg(1);
+        Serial.printf("POST /presets/%s/frames/%s, filename: %s\n", id.c_str(), frameIndex.c_str(), filename.c_str());
 
         // ID が有効な範囲かどうかを確認
-        if (id.toInt() <= 0 || id.toInt() > MAX_PRESET_NUM)
+        if (id.toInt() <= 0 || id.toInt() > MAX_PRESET_COUNT)
         {
             Serial.println("Invalid content ID");
             request->send(400, "text/plain", "Invalid content ID");
             return;
         }
         // フレーム数が有効な範囲かどうかを確認
-        if (frameIndex.toInt() < 0 || frameIndex.toInt() > MAX_FRAME_NUM)
+        if (frameIndex.toInt() < 0 || frameIndex.toInt() > MAX_FRAME_COUNT)
         {
             Serial.println("Invalid frame number");
             request->send(400, "text/plain", "Invalid frame number");
@@ -106,7 +92,7 @@ void handlePostTotalFramesBody(AsyncWebServerRequest *request, uint8_t *data, si
 {
     // ID が有効な範囲かどうかを確認
     const String id = request->pathArg(0);
-    if (id.toInt() <= 0 || id.toInt() > MAX_PRESET_NUM)
+    if (id.toInt() <= 0 || id.toInt() > MAX_PRESET_COUNT)
     {
         Serial.println("Invalid content ID");
         request->send(400, "text/plain", "Invalid content ID");
@@ -126,9 +112,9 @@ void handlePostTotalFramesBody(AsyncWebServerRequest *request, uint8_t *data, si
 
     // 総フレーム数の取得
     int totalFrames = doc["totalFrames"];
-    if (totalFrames < 0 || totalFrames > MAX_FRAME_NUM)
+    if (totalFrames < 0 || totalFrames > MAX_FRAME_COUNT)
     {
-        Serial.println("Invalid frame number");
+    Serhttps: // free-method.co.jp/mac/mac-shortcut-switch-windows/ial.println("Invalid frame number");
         request->send(400, "text/plain", "Invalid frame number");
         return;
     }
@@ -142,9 +128,19 @@ void handlePostTotalFramesBody(AsyncWebServerRequest *request, uint8_t *data, si
         return;
     }
 
-    Serial.printf("POST /presets/%s, totalFrames: %d, interval: %d\n", id.c_str(), totalFrames, interval);
+    // ループ回数の取得
+    int loopCount = doc["loopCount"];
+    if (loopCount < 1 || loopCount > MAX_LOOP_COUNT)
+    {
+        Serial.println("Invalid loop count");
+        request->send(400, "text/plain", "Invalid loop count");
+        return;
+    }
+
+    Serial.printf("POST /presets/%s, totalFrames: %d, interval: %d, loopCount: %d\n", id.c_str(), totalFrames, interval, loopCount);
     setTotalFrames(id, totalFrames);
     setInterval(id, interval);
+    setLoopCount(id, loopCount);
     request->send(200, "text/plain", "OK");
 }
 
@@ -160,9 +156,12 @@ void setupServer()
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "*");
 
+    // GET / => index.html を返す
+    server.serveStatic("/", LittleFS, "/dist").setDefaultFile("index.html");
+
     // POST /presets/:id/frames => 応する画像を保存・更新
     server.on(
-        "^\\/presets\\/([0-9]+)\\/frames$", HTTP_POST,
+        "^\\/presets\\/([0-9]+)\\/frames\\/([0-9]+)$", HTTP_POST,
         handlePostFrame,
         handlePostFrameUpload);
 

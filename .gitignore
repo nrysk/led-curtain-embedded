@@ -5,3 +5,4 @@
 .vscode/ipch
 
 include/lc_config.h
+data

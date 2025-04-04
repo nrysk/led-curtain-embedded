@@ -1,0 +1,3 @@
+[submodule "led-curtain-frontend"]
+	path = led-curtain-frontend
+	url = git@github.com:nrysk/led-curtain-frontend.git

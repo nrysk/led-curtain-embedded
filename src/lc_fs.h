@@ -10,5 +10,7 @@ void setTotalFrames(const String id, const int totalFrames);
 int getTotalFrames(const String id);
 void setInterval(const String id, const int interval);
 int getInterval(const String id);
+void setLoopCount(const String id, const int loopCount);
+int getLoopCount(const String id);
 
 #endif
