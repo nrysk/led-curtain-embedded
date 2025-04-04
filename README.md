@@ -18,7 +18,8 @@ QR コードを読み取ると，サーバにデータを送信するための�
 
 実際の動作は以下の動画で確認できます．
 
-<video controls src="img/led-curtain.mov" title="Title"></video>
+https://github.com/user-attachments/assets/bc2e661c-671f-426a-addb-27b9304d89bb
+
 ## セットアップ
 
 ### 1. クローン
